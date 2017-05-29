@@ -11,14 +11,17 @@
 
 
 
+
+
+
 @interface ViewController ()
 
 
 @end
 
+
 @implementation ViewController
 
-//AFNetworkReachabilityManager
 
 
 
@@ -57,9 +60,12 @@
 
     _calendar.delegate = self;
     _calendar.dataSource = self;
-    
-}
-
+    _isReading = NO;
+    _captureSession = nil;
+    [self netWorkReachable];
+  
+   
+   }
 
 
 
@@ -67,6 +73,148 @@
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
 }
+
+
+
+
+
+- (IBAction)startStopReading:(id)sender {
+    if (!_isReading) {
+        if ([self startReading]) {
+       
+            [_lblStatus setText:@"正在掃描QRCode"];
+        }
+    }
+    else{
+        [self stopReading];
+      
+        
+    }
+    
+    _isReading = !_isReading;
+    
+}
+
+- (BOOL)startReading {
+    NSError *error;
+    
+   
+    
+    AVCaptureDevice *captureDevice = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
+    
+    AVCaptureDeviceInput *input = [AVCaptureDeviceInput deviceInputWithDevice:captureDevice error:&error];
+    
+    
+    if (!input) {
+        NSLog(@"%@", [error localizedDescription]);
+        return NO;
+    }
+    if (!input) {
+        
+        NSLog(@"%@", [error localizedDescription]);
+        return NO;
+    }
+    
+    _captureSession = [[AVCaptureSession alloc] init];
+    [_captureSession addInput:input];
+    
+    AVCaptureMetadataOutput *captureMetadataOutput = [[AVCaptureMetadataOutput alloc] init];
+    [_captureSession addOutput:captureMetadataOutput];
+    
+    
+    
+    dispatch_queue_t dispatchQueue;
+    dispatchQueue = dispatch_queue_create("myQueue", NULL);
+    [captureMetadataOutput setMetadataObjectsDelegate:self queue:dispatchQueue];
+    [captureMetadataOutput setMetadataObjectTypes:[NSArray arrayWithObject:AVMetadataObjectTypeQRCode]];
+    _videoPreviewLayer = [[AVCaptureVideoPreviewLayer alloc] initWithSession:_captureSession];
+    [_videoPreviewLayer setVideoGravity:AVLayerVideoGravityResizeAspectFill];
+    [_videoPreviewLayer setFrame:_viewPreview.layer.bounds];
+    [_viewPreview.layer addSublayer:_videoPreviewLayer];
+    
+    [_captureSession startRunning];
+
+    
+    return YES;
+   
+}
+
+-(void)captureOutput:(AVCaptureOutput *)captureOutput didOutputMetadataObjects:(NSArray *)metadataObjects fromConnection:(AVCaptureConnection *)connection {
+    if (metadataObjects != nil && [metadataObjects count] > 0) {
+        AVMetadataMachineReadableCodeObject *metadataObj = [metadataObjects objectAtIndex:0];
+        if ([[metadataObj type] isEqualToString:AVMetadataObjectTypeQRCode]) {
+            [_lblStatus performSelectorOnMainThread:@selector(setText:) withObject:[metadataObj stringValue] waitUntilDone:NO];
+            
+            [self performSelectorOnMainThread:@selector(stopReading) withObject:nil waitUntilDone:NO];
+         
+            _isReading = NO;
+        }
+    }
+}
+
+-(void)stopReading{
+    [_captureSession stopRunning];
+    _captureSession = nil;
+    
+    [_videoPreviewLayer removeFromSuperlayer];
+}
+
+
+
+- (void)netWorkReachable {
+    
+    
+    
+    
+    
+    AFNetworkReachabilityManager *networkReachabilityManger = [AFNetworkReachabilityManager sharedManager];
+    [networkReachabilityManger startMonitoring];
+    
+
+    
+    
+    [networkReachabilityManger setReachabilityStatusChangeBlock:^(AFNetworkReachabilityStatus status){
+    
+        switch (status) {
+            case AFNetworkReachabilityStatusUnknown:
+                NSLog(@"網路未知");
+                break;
+            case AFNetworkReachabilityStatusNotReachable:
+                _netTest.text = @"沒有網路";
+                NSLog(@"沒有網路");
+                break;
+            case AFNetworkReachabilityStatusReachableViaWiFi:
+            
+              
+                _netTest.text = @"有網路";
+                NSLog(@"wifi");
+                break;
+            case AFNetworkReachabilityStatusReachableViaWWAN:
+                _netTest.text = @"有網路";
+                NSLog(@"3G");
+                break;
+            default:
+                break;
+        }
+        
+    }];
+    
+    
+  
+    
+}
+
+
+
+-(void)network {
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"網路" message:@"現在正在使用網路" preferredStyle:(UIAlertControllerStyleAlert)];
+    UIAlertAction *okButton = [UIAlertAction actionWithTitle:@"ok" style:(UIAlertActionStyleCancel) handler:nil];
+    [alert addAction:okButton];
+    [self presentViewController:alert animated:YES completion:nil];
+    
+    
+};
+
 
 
 @end
