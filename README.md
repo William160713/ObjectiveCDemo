@@ -1,4 +1,7 @@
-# ObjectiveCDemoSynopsis
+# ObjectiveCDemo
+
+
+Synopsis
 
 三餐選擇器(以Swift寫成) 這個App可以推薦使用者餐點。在他們不知道要吃甚麼的時候，按下早午晚餐三個按鈕後App就會隨機推薦菜色跟其菜名。
 
