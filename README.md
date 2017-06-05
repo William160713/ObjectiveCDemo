@@ -13,9 +13,9 @@ Synopsis
 
 3.App的主畫面裡放了三個按鈕分別為:早餐、午餐、晚餐，讓使用者可以選擇之外， 使用了if-else 判斷式以及arc4random_uniform() 函數來達成隨機推薦餐點的功能．
 
-實作了推播功能
+4.實作了推播功能
 
-實作DispatchQueue的下載功能。
+5.實作DispatchQueue的下載功能。
 
 6.使用了UIBezierPath繪製了圖片。
 
