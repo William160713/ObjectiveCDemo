@@ -9,7 +9,7 @@ Synopsis
 
 1.登入畫面有Facebook登入跟直接登入可以選擇
 
-2.使用了TableViewController、Collection View Controller、 Tab Bar Controller、以及Navigation Controller 作為整個App的架構
+2.使用了TableViewController、 Tab Bar Controller、以及Navigation Controller 作為整個App的架構
 
 3.App的主畫面裡放了三個按鈕分別為:早餐、午餐、晚餐，讓使用者可以選擇之外， 使用了if-else 判斷式以及arc4random_uniform() 函數來達成隨機推薦餐點的功能．
 
